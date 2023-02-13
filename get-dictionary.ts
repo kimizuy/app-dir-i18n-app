@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import "server-only";
 import type { Locale } from "./i18n-config";
 
@@ -7,4 +8,16 @@ const dictionaries = {
   en: () => import("./dictionaries/en.json").then((module) => module.default),
   de: () => import("./dictionaries/de.json").then((module) => module.default),
   cs: () => import("./dictionaries/cs.json").then((module) => module.default),
+};
+
+export const getDictionary = async (locale: Locale) => {
+  try {
+    const isNotFunction = !(typeof dictionaries[locale] === "function");
+    if (isNotFunction) {
+      throw new TypeError(`${dictionaries[locale]} is not a function`);
+    }
+    return dictionaries[locale]();
+  } catch (error) {
+    notFound();
+  }
 };
